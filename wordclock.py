@@ -1,318 +1,152 @@
 # -*- coding: utf-8 -*-
-#/usr/bin/python3.6
+#/usr/bin/python2.7
 from datetime import datetime
-from neopixel import *
-import configparser
+#from neopixel import *
+import ConfigParser
 import time
+import os.path
+
 
 
 # LED strip configuration:
-LED_COUNT      = 114            # Number of LED pixels.
-LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
-LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA        = 5       # DMA channel to use for generating signal (try 5)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
-LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
+#LED_COUNT      = 114            # Number of LED pixels.
+#LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
+#LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
+#LED_DMA        = 5       # DMA channel to use for generating signal (try 5)
+#LED_BRIGHTNESS = 20     # Set to 0 for darkest and 255 for brightest
+#LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 
 
-# Define functions which animate LEDs in various ways.
-def clock(strip, color, wait_ms=5000):
 
+#def clock(color, wait_ms=5000):
+def clock(wait_ms=5000):
 
-        
+    try:
         color4 = 0
-        
-        colorFile = configparser.ConfigParser()
-        colorFile.sections()
+        colorFile = ConfigParser.ConfigParser()
         colorFile.read('color.ini')
-        DEFAULT = colorFile['COLOR']
-        colorFile = (DEFAULT["ccolor"])
-        colorFile = colorFile.split(",")
-        color0 = colorFile[0]
-        color1 = colorFile[1]
-        color2 = colorFile[2]
-        color = (Color(int(color0), int(color1), int(color2)))
-        print (color)
+        DEFAULT = colorFile.get('COLOR', 'ccolor')
+        print (DEFAULT)
+    except:
+        print ("color.ini not found")
+        DEFAULT = '255, 0, 0'
+        print (DEFAULT)
+
+
+    colorFile = DEFAULT.split(",")
+    color0 = colorFile[0]
+    color1 = colorFile[1]
+    color2 = colorFile[2]
+    color0 = int(color0)
+    color1 = int(color1)
+    color2 = int(color2)
+    
+    
+    
+    
+    #color = (int(color0), int(color1), int(color2))
+    #print ("color = " + str(color))
+    #print ("color0 = " +color0)
+    #print ("color1 = " +color1)
+    #print ("color2 = " +color2)    
+
+    # get time from system
+    minute = datetime.now().strftime('%M')
+    hour = datetime.now().strftime('%I')
+    hour24 = datetime.now().strftime('%H')
+    hourint = int(hour)
+
+
+    # umschalten der Modis
+    modi = 2
+    if modi == 1:
+        config = ConfigParser.RawConfigParser()
+        config.read('deutsch_hour.ini')
+        hourplus = hour
+    if modi == 2:
+        config = ConfigParser.RawConfigParser()
+        config.read('deutsch_viertel.ini')
+        if minute >= 21:
+            hourplus = int(hour) + 1
+            hourplus = str(hourplus)
+            print ("stunde plus eins " + hourplus)
+    if modi == 3:
+        config = ConfigParser.RawConfigParser()
+        config.read('deutsch_hour.ini')
 
 
 
-        
-        mi = datetime.now().strftime('%M')
-        hour = datetime.now().strftime('%I')
-        config = configparser.ConfigParser()
-        config.sections()
+    hour = config.get('HOUR', hourplus)
+    h = hour.split(",")
 
-        config.read('deutsch.ini')
-        DEFAULT = config['DEFAULT']
-        print ("##########################################")
-        print ("Stunde " + hour)
-        print ("minute " + mi)
+    # get value from ini file
 
-        hourint = int(hour)
-
-        #plus eine stunde
-        if int(mi) >= 20 and hourint <= 8:
-               
-                hour = int(hour) + 1
-                x = "0"
-                hour = ((x) + str(hour))
-                print ("Stunde plus eins gleich kliener 8 " +hour)
-       
-        if int(mi) >= 20 and hourint >= 9 and hourint <= 11:
-               
-                hour = int(hour) + 1
-                hour = (str(hour))
-                print ("Stunde plus eins nach 9 " +hour)
- 
-        if int(mi) >= 20 and hourint == 12:
-               
-                hour = ("01")
-                print ("Stunde plus eins nach 9 " +hour)
-
-        hour = (DEFAULT[hour])
-        h = hour.split(",")
-        
-                
-        for i in range(strip.numPixels()):
-                strip.setPixelColor(i, Color(0,0,0))
+    print ("############### START ################")
+    es = config.get('HOUR', 'es')
+    e = es.split(",")
+    print ("pixel Aufruf")
+    print ("es: ")
+    for e in e:
+        print (e)
+    print ("##########################################")
+    ist = config.get('HOUR', 'ist')
+    ist = ist.split(",")
+    print ("pixel Aufruf")
+    print ("ist: ")
+    for ist in ist:
+        print (ist)
+    print ("##########################################")
+    uhr = config.get('HOUR', 'uhr')
+    uhr = uhr.split(",")
+    print ("pixel Aufruf")
+    print ("uhr: ")
+    for uhr in uhr:
+        print (uhr)
 
 
 
-        #Es ist
-        strip.setPixelColor(4, color)
-        #strip.setPixelColor(4, (255, 0, 0))
-        strip.setPixelColor(5, color)
-        strip.setPixelColor(7, color)
-        strip.setPixelColor(8, color)
-        strip.setPixelColor(9, color)
-
-        # Volle Stunden anzeigen aus ini file
-        
+    print ("Ansteuerung der Stunden")
+    print ("Stunde " + str(hourint))
+    print ("Stunde 24 " + str(hour24))
+    for h in h:
         try:
-                strip.setPixelColor(int(h[0]), color)
+            print (h)
         except:
-                print ("")
+            print ("Fehler")
+    print ("############")
 
+
+    mi = config.get('MIN', minute)
+    min = mi.split(",")
+    print ("Minute " + minute)
+    #print (min)
+
+    print ("pixel Aufruf Minute")
+    for min in min:
         try:
-                strip.setPixelColor(int(h[1]), color)
+            print (min)
         except:
-                print ("")
-        try:
-                strip.setPixelColor(int(h[2]), color)
-        except:
-                print ("")
-        try:
-                strip.setPixelColor(int(h[3]), color)
-        except:
-                print ("")
-        try:
-                strip.setPixelColor(int(h[4]), color)
-        except:
-                print ("")
-        try:
-                strip.setPixelColor(int(h[5]), color)
-        except:
-                print ("")
+            print ("Fehler")
 
 
-        # ab hier beginnt vor
-        if int(mi) in range (20,30) or int(mi) in range (45,60):
-                fvor = ("vor")
-                fvor = (DEFAULT[fvor])
-                h = fvor.split(",")
+    if mi >= 1:
+        print ("Display Minute als Wort")
+        minute = config.get('MIN', 'minuten')
+        dis_minute = minute.split(",")
+        print ("pixel Aufruf")
+        for dis_minute in dis_minute:
+            print (dis_minute)
 
 
-                try:
-                        strip.setPixelColor(int(h[0]), color)
-                        print ("vor als Wort")
-                except:
-                        print ("vor no value 1") 
-                try:
-                        strip.setPixelColor(int(h[1]), color)
-                except:
-                        print ("vor no value 2")
-                try:
-                        strip.setPixelColor(int(h[2]), color)
-                except:
-                        print ("vor no value 3")
-
-
-
-
-
-        # Ab hier beginnt nach
-        if int(mi) in range (35,45) or int(mi) in range (5,15):
-                fnach = ("nach")
-                fnach = (DEFAULT[fnach])
-                h = fnach.split(",")
-
-                try:
-                        strip.setPixelColor(int(h[0]), color)
-                        print ("nach als Wort")
-                except:
-                        print ("vor no value 1") 
-                try:
-                        strip.setPixelColor(int(h[1]), color)
-                except:
-                        print ("vor no value 2")
-                try:
-                        strip.setPixelColor(int(h[2]), color)
-                except:
-                        print ("vor no value 3")
-                try:
-                        strip.setPixelColor(int(h[3]), color)
-                except:
-                        print ("vor no value 4") 
-        
-        # ab hier beginnt halb
-        for a in range (20,45):
-                halb = ("halb")
-                halb = (DEFAULT[halb])
-                h = halb.split(",")
-
-                if a == int(mi):
-                        
-                        try:
-                                strip.setPixelColor(int(h[0]), color)
-                                print ("halb als Wort")
-                        except:
-                                print ("halb no value 1") 
-                        try:
-                                strip.setPixelColor(int(h[1]), color)
-                        except:
-                                print ("halb no value 2")
-                        try:
-                                strip.setPixelColor(int(h[2]), color)
-                        except:
-                                print ("halb no value 3")
-                        try:
-                                strip.setPixelColor(int(h[3]), color)
-                        except:
-                                print ("halb no value 4")
-
-
-        # fuenf minuten als Wort anzeigen
-        
-        if int(mi) in range (5,10) or int(mi) in range (35,40) or int(mi) in range (25,30) or int(mi) in range (55,60):
-                ffuenf = ("fuenf")
-                ffuenf = (DEFAULT[ffuenf])
-                h = ffuenf.split(",")
-
-                try:
-                        strip.setPixelColor(int(h[0]), color)
-                        print ("fuenf als Wort")
-                except:
-                        print ("fuenf als Wort no value 1") 
-                try:
-                        strip.setPixelColor(int(h[1]), color)
-                except:
-                        print ("fuenf als Wort no value 2")
-                try:
-                        strip.setPixelColor(int(h[2]), color)
-                except:
-                        print ("fuenf als Wort no value 3")
-                try:
-                        strip.setPixelColor(int(h[3]), color)
-                except:
-                        print ("fuenf als Wort no value 4") 
-                            
-                                
-
-        # zehn minuten als Wort anzeigen
-        
-        if int(mi) in range (10,15) or int(mi) in range (40,45) or int(mi) in range (20,25) or int(mi) in range (50,55):
-                fzehn = ("zehn")
-                fzehn = (DEFAULT[fzehn])
-                h = fzehn.split(",")
-
-                try:
-                        strip.setPixelColor(int(h[0]), color)
-                        print ("zehn als Wort")
-                except:
-                        print ("zehn als Wort no value 1") 
-                try:
-                        strip.setPixelColor(int(h[1]), color)
-                except:
-                        print ("zehn als Wort no value 2")
-                try:
-                        strip.setPixelColor(int(h[2]), color)
-                except:
-                        print ("zehn als Wort no value 3")
-                try:
-                        strip.setPixelColor(int(h[3]), color)
-                except:
-                        print ("zehn als Wort no value 4") 
-                          
-
-
-
-        # viertel als Wort anzeigen
-        
-        if int(mi) in range (15,20) or int(mi) in range (45,50):
-                fviertel = ("viertel")
-                fviertel = (DEFAULT[fviertel])
-                h = fviertel.split(",")
-
-                try:
-                        strip.setPixelColor(int(h[0]), color)
-                        print ("viertel als Wort")
-                except:
-                        print ("fuenf als Wort no value 1") 
-                try:
-                        strip.setPixelColor(int(h[1]), color)
-                except:
-                        print ("fuenf als Wort no value 2")
-                try:
-                        strip.setPixelColor(int(h[2]), color)
-                except:
-                        print ("fuenf als Wort no value 3")
-                try:
-                        strip.setPixelColor(int(h[3]), color)
-                except:
-                        print ("fuenf als Wort no value 4") 
-
-
-
-        if (mi[1:] == "1") or (mi[1:] == "6"):
-                strip.setPixelColor(0, color)
-                
-        elif mi[1:] == "2" or (mi[1:] == "7"):
-                strip.setPixelColor(0, color)
-                strip.setPixelColor(1, color)
-                
-
-        elif mi[1:] == "3" or (mi[1:] == "8"):
-                strip.setPixelColor(0, color)
-                strip.setPixelColor(1, color)
-                strip.setPixelColor(2, color)
-               
-
-        elif mi[1:] == "4" or (mi[1:] == "9"):
-                strip.setPixelColor(0, color)
-                strip.setPixelColor(1, color)
-                strip.setPixelColor(2, color)
-                strip.setPixelColor(3, color)
-
-
-
-                #strip.setPixelColor(3, Color(255,255,0))
-
-
-                
-
-        strip.show()
-        time.sleep(wait_ms/1000.0)
-	
-
-
-
+    time.sleep(wait_ms/1000.0)
 
 # Main program:
 if __name__ == '__main__':
 	
-	strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
-	strip.begin()
+    #strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
+    #strip.begin()
 
-	print ('Press Ctrl-C to quit.')
-	while True:
-		clock(strip, Color(255, 0, 0))  # rot wipe
+    print ('Press Ctrl-C to quit.')
+    while True:
+        #clock(strip, Color(255, 255, 0))  # rot wipe
+        clock ()
